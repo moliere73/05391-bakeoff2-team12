@@ -114,6 +114,9 @@ void draw() {
   
   fill(200);
   noStroke();
+  
+  // Display hint 
+  displayHint();
 
   //shouldn't really modify this printout code unless there is a really good reason to
   if (userDone)
@@ -339,6 +342,41 @@ void drawButton(float x, float y, String label, int fillColor, int textColor) {
 }
 
 
+
+void displayHint() {
+  // Get the current target destination
+  Destination d = destinations.get(trialIndex);
+
+  // Calculate differences in position, rotation, and scale
+  float distX = d.x - logoX;
+  float distY = d.y - logoY;
+  float rotationDiff = calculateDifferenceBetweenAngles(d.rotation, logoRotation);
+  float scaleDiff = d.z - logoZ;
+
+  String hintMessage = "";
+
+  // Determine the most important adjustment needed and set hint message
+  if (!location_Right()) {
+    if (abs(distX) > abs(distY)) {
+      hintMessage = (distX > 0) ? "Move Right" : "Move Left";
+    } else {
+      hintMessage = (distY > 0) ? "Move Down" : "Move Up";
+    }
+  } else if (!rotation_Right()) {
+    hintMessage = (rotationDiff > 0) ? "Rotate CW" : "Rotate CCW";
+  } else if (!scale_Right()) {
+    hintMessage = (scaleDiff > 0) ? "Increase Size (+)" : "Decrease Size (-)";
+  } else {
+    hintMessage = "Click 'Submit' to proceed";
+  }
+
+  // Display the hint on the screen
+  fill(255, 255, 0); // Yellow color for the hint text
+  textAlign(CENTER);
+  textSize(18);
+  text("Hint: " + hintMessage, width / 2, height - inchToPix(0.7f));
+}
+
 boolean clickInsideSquare() // checks if a user clicks inside the square
 {
   float translatedMouseX = mouseX - logoX;
@@ -415,9 +453,9 @@ public boolean checkForSuccess()
 }
 
 //utility function I include to calc diference between two angles
-double calculateDifferenceBetweenAngles(float a1, float a2)
+float calculateDifferenceBetweenAngles(float a1, float a2)
 {
-  double diff=abs(a1-a2);
+  float diff=abs(a1-a2);
   diff%=90;
   if (diff>45)
     return 90-diff;
